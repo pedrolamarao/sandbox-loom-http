@@ -1,11 +1,16 @@
 = loom-http
 
-This is an exercise for Java's Project Loom.
+This exercise uses my Project Loom fork to implement an HTTP server.
 
-In this exercise we use Jetty's `HttpParser` to build a dummy HTTP server with Loom's virtual threads. The server should consume any request and always respond with the smalled 404 possible.
+You can find my Project Loom fork here: https://github.com/pedrolamarao/jdk-loom
 
-You *must* use a Project Loom early access build!
-Look for them here: http://jdk.java.net/loom/
+It uses Project Loom's virtual thread for the basic concurrency architecture.
+
+It uses my implementation of continuation-based generators for the HTTP request parser.
+
+You *must* use a build from my Project Loom fork!
+I do not provide pre-compiled binaries at this time.
+Sorry.
 
 To build: `./gradlew shadowJar`
 

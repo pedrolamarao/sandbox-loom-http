@@ -1,14 +1,10 @@
 package br.dev.pedrolamarao.loom.http;
 
-import org.eclipse.jetty.http.HttpField;
-import org.eclipse.jetty.http.HttpParser;
-import org.eclipse.jetty.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -88,7 +84,7 @@ public class HttpServer implements AutoCloseable
         }
     }
 
-    final class HttpWorker implements Callable<Void>, HttpParser.RequestHandler
+    final class HttpWorker implements Callable<Void>
     {
         final SocketChannel socket;
 
@@ -100,39 +96,26 @@ public class HttpServer implements AutoCloseable
         @Override
         public Void call () throws Exception
         {
-            final var buffer = ByteBuffer.allocate(4096);
-            final var parser = new HttpParser(this);
             logger.atInfo().log("client: {}: servicing", socket.getLocalAddress());
-            while (true)
+
+            final var source = HttpParserSources.fromChannel(socket);
+
+            final var parser = new HttpParser();
+
+            while (! Thread.currentThread().isInterrupted())
             {
-                buffer.clear();
-                final var read = socket.read(buffer);
-                if (read == -1) break;
-                buffer.flip();
-                while (buffer.hasRemaining()) {
-                    if (parser.parseNext(buffer)) {
-                        socket.write( UTF_8.encode( "HTTP/1.1 404\r\nContent-Length: 0\r\n\r\n") );
-                        logger.atInfo().log("client: {}: request responded", socket.getLocalAddress());
-                        parser.reset();
-                    }
+                while (! Thread.currentThread().isInterrupted())
+                {
+                    final var part = parser.parse(source);
+                    if (part instanceof HttpFinish) break;
                 }
+
+                socket.write( UTF_8.encode( "HTTP/1.1 404\r\nContent-Length: 0\r\n\r\n") );
+                logger.atInfo().log("client: {}: request responded", socket.getLocalAddress());
             }
+
             logger.atInfo().log("client: {}: closed", socket.getLocalAddress());
             return null;
         }
-
-        @Override public void startRequest (String method, String uri, HttpVersion version) { }
-
-        @Override public boolean content (ByteBuffer item) { return false; }
-
-        @Override public boolean headerComplete () { return false; }
-
-        @Override public boolean contentComplete () { return false; }
-
-        @Override public boolean messageComplete () { return true; }
-
-        @Override public void parsedHeader (HttpField field) { }
-
-        @Override public void earlyEOF () { }
     }
 }
