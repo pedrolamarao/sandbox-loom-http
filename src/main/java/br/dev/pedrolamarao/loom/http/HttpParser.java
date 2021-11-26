@@ -3,7 +3,7 @@ package br.dev.pedrolamarao.loom.http;
 import java.io.ByteArrayOutputStream;
 import java.util.function.Supplier;
 import java.util.generator.GeneratorHandler;
-import java.util.generator.SupplierGenerator;
+import java.util.generator.Generator;
 
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
@@ -13,7 +13,7 @@ public class HttpParser
 {
     private volatile HttpParserSource source;
 
-    private final Supplier<HttpPart> generator = new SupplierGenerator<>(this::run);
+    private final Supplier<HttpPart> generator = new Generator<>(this::run);
 
     public HttpPart parse (HttpParserSource source)
     {
