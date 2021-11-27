@@ -2,6 +2,11 @@ package br.dev.pedrolamarao.loom.http;
 
 public class HttpResponseParser extends HttpParser
 {
+    public HttpResponseParser (HttpParserSource source)
+    {
+        super(source);
+    }
+
     @Override
     HttpStart parseStart (HttpParserSource source)
     {

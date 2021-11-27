@@ -1,9 +1,12 @@
 package br.dev.pedrolamarao.loom.http;
 
-import static java.lang.Character.*;
-
 public class HttpRequestParser extends HttpParser
 {
+    public HttpRequestParser (HttpParserSource source)
+    {
+        super(source);
+    }
+
     @Override
     HttpStart parseStart (HttpParserSource source)
     {

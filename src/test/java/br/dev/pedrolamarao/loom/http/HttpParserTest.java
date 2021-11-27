@@ -129,58 +129,54 @@ class HttpParserTest
     @Test
     void parseSmallestRequest ()
     {
-        final var source = fromString("GET / HTTP/1.1\r\n\r\n");
-        final var parser = new HttpRequestParser();
-        final var start = (HttpStartRequest) parser.parse(source);
+        final var parser = new HttpRequestParser( fromString("GET / HTTP/1.1\r\n\r\n") );
+        final var start = (HttpStartRequest) parser.parse();
         assertEquals("HTTP/1.1", start.version());
         assertEquals("GET", start.verb());
         assertEquals("/", start.path());
-        final var body = (HttpBody) parser.parse(source);
-        final var finish = (HttpFinish) parser.parse(source);
+        final var body = (HttpBody) parser.parse();
+        final var finish = (HttpFinish) parser.parse();
     }
 
     @Test
     void parseRequestSimple ()
     {
-        final var source = fromString("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n");
-        final var parser = new HttpRequestParser();
-        final var start = (HttpStartRequest) parser.parse(source);
+        final var parser = new HttpRequestParser( fromString("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n") );
+        final var start = (HttpStartRequest) parser.parse();
         assertEquals("HTTP/1.1", start.version());
         assertEquals("GET", start.verb());
         assertEquals("/", start.path());
-        final var host = (HttpField) parser.parse(source);
+        final var host = (HttpField) parser.parse();
         assertEquals("Host", host.name());
         assertEquals("localhost", host.value());
-        final var body = (HttpBody) parser.parse(source);
-        final var finish = (HttpFinish) parser.parse(source);
+        final var body = (HttpBody) parser.parse();
+        final var finish = (HttpFinish) parser.parse();
     }
 
     @Test
     void parseRequestContentLengthBody ()
     {
-        final var source = fromString("GET / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTODO");
-        final var parser = new HttpRequestParser();
-        final var start = (HttpStartRequest) parser.parse(source);
+        final var parser = new HttpRequestParser( fromString("GET / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTODO") );
+        final var start = (HttpStartRequest) parser.parse();
         assertEquals("HTTP/1.1", start.version());
         assertEquals("GET", start.verb());
         assertEquals("/", start.path());
-        final var field = (HttpField) parser.parse(source);
+        final var field = (HttpField) parser.parse();
         assertEquals("Content-Length", field.name());
         assertEquals("4", field.value());
-        final var body = (HttpBody) parser.parse(source);
-        final var finish = (HttpFinish) parser.parse(source);
+        final var body = (HttpBody) parser.parse();
+        final var finish = (HttpFinish) parser.parse();
     }
 
     @Test
     void parseSmallestResponse ()
     {
-        final var source = fromString("HTTP/1.1 200\r\n\r\n");
-        final var parser = new HttpResponseParser();
-        final var start = (HttpStartResponse) parser.parse(source);
+        final var parser = new HttpResponseParser( fromString("HTTP/1.1 200\r\n\r\n") );
+        final var start = (HttpStartResponse) parser.parse();
         assertEquals("HTTP/1.1", start.version());
         assertEquals("200", start.status());
         assertEquals("", start.reason());
-        final var body = (HttpBody) parser.parse(source);
-        final var finish = (HttpFinish) parser.parse(source);
+        final var body = (HttpBody) parser.parse();
+        final var finish = (HttpFinish) parser.parse();
     }
 }

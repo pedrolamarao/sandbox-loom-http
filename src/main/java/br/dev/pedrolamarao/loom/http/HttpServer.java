@@ -116,12 +116,11 @@ public class HttpServer implements AutoCloseable
 
                 logger.atInfo().log("client: {}: servicing", address);
 
-                final var source = HttpParserSources.fromChannel(socket);
-                final var parser = new HttpRequestParser();
+                final var parser = new HttpRequestParser( HttpParserSources.fromChannel(socket) );
 
                 while (! Thread.currentThread().isInterrupted())
                 {
-                    HttpRequest.from(parser, source);
+                    HttpRequest.from(parser);
                     socket.write( UTF_8.encode( "HTTP/1.1 200\r\nContent-Length: 0\r\n\r\n") );
                     logger.atInfo().log("client: {}: request responded", address);
                 }

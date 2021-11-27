@@ -11,19 +11,18 @@ import static java.lang.Thread.currentThread;
 
 public abstract class HttpParser
 {
-    private volatile HttpParserSource source;
+    private final HttpParserSource source;
 
     private final Supplier<HttpPart> generator = new Generator<>(this::run);
 
-    public HttpPart parse (HttpParserSource source)
+    protected HttpParser (HttpParserSource source)
     {
-        try {
-            this.source = source;
-            return generator.get();
-        }
-        finally {
-            this.source = null;
-        }
+        this.source = source;
+    }
+
+    public HttpPart parse ()
+    {
+        return generator.get();
     }
 
     //
