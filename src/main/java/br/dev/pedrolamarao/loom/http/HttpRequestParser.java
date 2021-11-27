@@ -2,11 +2,25 @@ package br.dev.pedrolamarao.loom.http;
 
 import java.util.ArrayList;
 
+import static java.lang.Character.isAlphabetic;
+
 public class HttpRequestParser extends HttpParser
 {
     public HttpRequestParser (HttpParserSource source)
     {
         super(source);
+    }
+
+    static String parsePath (HttpParserSource source)
+    {
+        final var value = new StringBuilder();
+        while (true) {
+            final var next = source.take();
+            if (next == ' ') break;
+            value.append((char) next);
+        }
+        while (source.peek() == ' ') source.skip();
+        return value.toString();
     }
 
     public HttpRequest parseRequest ()
@@ -42,6 +56,18 @@ public class HttpRequestParser extends HttpParser
     HttpStart parseStart (HttpParserSource source)
     {
         return parseStartRequest(source);
+    }
+
+    static String parseVerb (HttpParserSource source)
+    {
+        final var value = new StringBuilder();
+        while (true) {
+            final var next = source.take();
+            if (! isAlphabetic(next)) break;
+            value.append((char) next);
+        }
+        while (source.peek() == ' ') source.skip();
+        return value.toString();
     }
 
     static HttpStartRequest parseStartRequest (HttpParserSource source)

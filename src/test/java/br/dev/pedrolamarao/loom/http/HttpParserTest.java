@@ -22,22 +22,22 @@ class HttpParserTest
     @Test
     void parseVerb ()
     {
-        final var simple = HttpParser.parseVerb( fromString("GET /") );
+        final var simple = HttpRequestParser.parseVerb( fromString("GET /") );
         assertEquals("GET", simple);
 
         assertThrows(Exception.class, () ->
-            HttpParser.parseVerb(new EmptySource())
+            HttpRequestParser.parseVerb(new EmptySource())
         );
     }
 
     @Test
     void parsePath ()
     {
-        final var simple = HttpParser.parsePath( fromString("/index.html HTTP/1.1") );
+        final var simple = HttpRequestParser.parsePath( fromString("/index.html HTTP/1.1") );
         assertEquals("/index.html", simple);
 
         assertThrows(Exception.class, () ->
-            HttpParser.parsePath(new EmptySource())
+            HttpRequestParser.parsePath(new EmptySource())
         );
     }
 
@@ -53,28 +53,28 @@ class HttpParserTest
     @Test
     void parseStatus ()
     {
-        final var simple = HttpParser.parseStatus( fromString("404\r\n") );
+        final var simple = HttpResponseParser.parseStatus( fromString("404\r\n") );
         assertEquals("404", simple);
 
-        final var reason = HttpParser.parseStatus( fromString("404 NOT_FOUND") );
+        final var reason = HttpResponseParser.parseStatus( fromString("404 NOT_FOUND") );
         assertEquals("404", reason);
 
         assertThrows(Exception.class, () ->
-            HttpParser.parseStatus(new EmptySource())
+            HttpResponseParser.parseStatus(new EmptySource())
         );
     }
 
     @Test
     void parseReason ()
     {
-        final var simple = HttpParser.parseReason( fromString("NOT_FOUND\r\n") );
+        final var simple = HttpResponseParser.parseReason( fromString("NOT_FOUND\r\n") );
         assertEquals("NOT_FOUND", simple);
 
-        final var empty = HttpParser.parseReason( fromString("\r\n") );
+        final var empty = HttpResponseParser.parseReason( fromString("\r\n") );
         assertEquals("", empty);
 
         assertThrows(Exception.class, () ->
-            HttpParser.parseReason(new EmptySource())
+            HttpResponseParser.parseReason(new EmptySource())
         );
     }
 

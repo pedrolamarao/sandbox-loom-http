@@ -114,66 +114,6 @@ public abstract class HttpParser
         return value.toString();
     }
 
-    static String parseVerb (HttpParserSource source)
-    {
-        final var value = new StringBuilder();
-        while (true) {
-            final var next = source.take();
-            if (! isAlphabetic(next)) break;
-            value.append((char) next);
-        }
-        while (source.peek() == ' ') source.skip();
-        return value.toString();
-    }
-
-    static String parsePath (HttpParserSource source)
-    {
-        final var value = new StringBuilder();
-        while (true) {
-            final var next = source.take();
-            if (next == ' ') break;
-            value.append((char) next);
-        }
-        while (source.peek() == ' ') source.skip();
-        return value.toString();
-    }
-
-    static String parseStatus (HttpParserSource source)
-    {
-        final var value = new StringBuilder();
-        while (true) {
-            final var byte_ = source.peek();
-            if (byte_ == '\r') {
-                break;
-            }
-            else if (byte_ == ' ') {
-                break;
-            }
-            else {
-                source.skip();
-                value.append((char) byte_);
-            }
-        }
-        while (source.peek() == ' ') source.skip();
-        return value.toString();
-    }
-
-    static String parseReason (HttpParserSource source)
-    {
-        final var value = new StringBuilder();
-        while (true) {
-            final var next = source.take();
-            if (next == '\r') {
-                if (source.take() != '\n') throw new HttpParserException("expected LF after CR");
-                break;
-            }
-            else {
-                value.append((char) next);
-            }
-        }
-        return value.toString();
-    }
-
     static String parseFieldName (HttpParserSource source)
     {
         final var value = new StringBuilder();
