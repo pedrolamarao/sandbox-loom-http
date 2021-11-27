@@ -10,8 +10,8 @@ import java.util.concurrent.Callable;
 @CommandLine.Command
 public class HttpServerTool implements Callable<Integer>
 {
-    @CommandLine.Option(names = "--address", required = true)
-    URI address;
+    @CommandLine.Option(names = "--address")
+    URI address = URI.create("http://localhost:8080");
 
     @Override
     public Integer call () throws Exception
