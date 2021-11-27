@@ -108,16 +108,15 @@ public class HttpServer implements AutoCloseable
             {
                 while (! Thread.currentThread().isInterrupted())
                 {
-                    while (! Thread.currentThread().isInterrupted())
-                    {
-                        final var part = parser.parse(source);
-                        if (part instanceof HttpFinish) break;
-                    }
-
+                    HttpRequest.from(parser, source);
                     socket.write( UTF_8.encode( "HTTP/1.1 200\r\nContent-Length: 0\r\n\r\n") );
                     logger.atInfo().log("client: {}: request responded", address);
                 }
 
+                logger.atInfo().log("client: {}: interrupted", address);
+            }
+            catch (HttpCloseException e)
+            {
                 logger.atInfo().log("client: {}: closed", address);
             }
             catch (Exception e)
