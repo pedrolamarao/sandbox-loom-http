@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -71,15 +72,26 @@ public class HttpServer implements AutoCloseable
         @Override
         public Void call () throws Exception
         {
-            final var server = ServerSocketChannel.open();
-            server.bind(address);
-            servers.put(address, server);
-            logger.atInfo().log("listener: {}: listening", server.getLocalAddress());
-            while (! Thread.currentThread().isInterrupted()) {
-                final var client = server.accept();
-                executor.submit( new HttpWorker(client) );
+            try (var server = ServerSocketChannel.open())
+            {
+                servers.put(address, server);
+
+                server.bind(address);
+
+                logger.atInfo().log("listener: {}: listening", address);
+
+                while (! Thread.currentThread().isInterrupted()) {
+                    final var client = server.accept();
+                    executor.submit( new HttpWorker(client) );
+                }
             }
-            logger.atInfo().log("listener: {}: closed", server.getLocalAddress());
+            finally
+            {
+                servers.remove(address);
+            }
+
+            logger.atInfo().log("listener: {}: closed", address);
+
             return null;
         }
     }
@@ -96,16 +108,17 @@ public class HttpServer implements AutoCloseable
         @Override
         public Void call () throws Exception
         {
-            final var address = socket.getRemoteAddress();
-
-            logger.atInfo().log("client: {}: servicing", address);
-
-            final var source = HttpParserSources.fromChannel(socket);
-
-            final var parser = new HttpRequestParser();
+            SocketAddress address = null;
 
             try
             {
+                address = socket.getRemoteAddress();
+
+                logger.atInfo().log("client: {}: servicing", address);
+
+                final var source = HttpParserSources.fromChannel(socket);
+                final var parser = new HttpRequestParser();
+
                 while (! Thread.currentThread().isInterrupted())
                 {
                     HttpRequest.from(parser, source);
