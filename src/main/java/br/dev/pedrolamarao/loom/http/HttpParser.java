@@ -9,7 +9,7 @@ import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 import static java.lang.Thread.currentThread;
 
-public class HttpParser
+public abstract class HttpParser
 {
     private volatile HttpParserSource source;
 
@@ -71,22 +71,7 @@ public class HttpParser
         }
     }
 
-    static HttpStart parseStart (HttpParserSource source)
-    {
-        final var version = parseVersion(source);
-        final var next = source.peek();
-        if (isAlphabetic(next)) {
-            final var verb = parseVerb(source);
-            final var path = parsePath(source);
-            return new HttpStartRequest(version, verb, path);
-        }
-        else if (isDigit(next)) {
-            final var status = parseStatus(source);
-            final var reason = parseReason(source);
-            return new HttpStartResponse(version, status, reason);
-        }
-        else throw new HttpParserException("unexpected character");
-    }
+    abstract HttpStart parseStart (HttpParserSource source);
 
     static HttpField parseField (HttpParserSource source)
     {
@@ -115,11 +100,18 @@ public class HttpParser
     {
         final var value = new StringBuilder();
         while (true) {
-            final var next = source.take();
+            final var next = source.peek();
             if (! (isAlphabetic(next) || isDigit(next) || next == '/' || next == '.')) break;
             value.append((char) next);
+            source.skip();
         }
-        while (source.peek() == ' ') source.skip();
+        while (source.peek() == ' ') {
+            source.skip();
+        }
+        if (source.peek() == '\r') {
+            source.skip();
+            if (source.take() != '\n') throw new HttpParserException("expected LF after CR");
+        }
         return value.toString();
     }
 
@@ -140,10 +132,10 @@ public class HttpParser
         final var value = new StringBuilder();
         while (true) {
             final var next = source.take();
-            if (next == '\r') break;
+            if (next == ' ') break;
             value.append((char) next);
         }
-        if (source.take() != '\n') throw new HttpParserException("expected LF after CR");
+        while (source.peek() == ' ') source.skip();
         return value.toString();
     }
 

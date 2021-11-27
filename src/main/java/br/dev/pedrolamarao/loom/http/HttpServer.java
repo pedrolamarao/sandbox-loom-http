@@ -96,25 +96,39 @@ public class HttpServer implements AutoCloseable
         @Override
         public Void call () throws Exception
         {
-            logger.atInfo().log("client: {}: servicing", socket.getLocalAddress());
+            final var address = socket.getRemoteAddress();
+
+            logger.atInfo().log("client: {}: servicing", address);
 
             final var source = HttpParserSources.fromChannel(socket);
 
-            final var parser = new HttpParser();
+            final var parser = new HttpRequestParser();
 
-            while (! Thread.currentThread().isInterrupted())
+            try
             {
                 while (! Thread.currentThread().isInterrupted())
                 {
-                    final var part = parser.parse(source);
-                    if (part instanceof HttpFinish) break;
+                    while (! Thread.currentThread().isInterrupted())
+                    {
+                        final var part = parser.parse(source);
+                        if (part instanceof HttpFinish) break;
+                    }
+
+                    socket.write( UTF_8.encode( "HTTP/1.1 200\r\nContent-Length: 0\r\n\r\n") );
+                    logger.atInfo().log("client: {}: request responded", address);
                 }
 
-                socket.write( UTF_8.encode( "HTTP/1.1 404\r\nContent-Length: 0\r\n\r\n") );
-                logger.atInfo().log("client: {}: request responded", socket.getLocalAddress());
+                logger.atInfo().log("client: {}: closed", address);
+            }
+            catch (Exception e)
+            {
+                logger.atError().log("client: {}: failed", address, e);
+            }
+            finally
+            {
+                socket.close();
             }
 
-            logger.atInfo().log("client: {}: closed", socket.getLocalAddress());
             return null;
         }
     }
