@@ -20,7 +20,7 @@ public abstract class HttpParser
         this.source = source;
     }
 
-    public HttpPart parse ()
+    public HttpPart parsePart ()
     {
         return generator.get();
     }

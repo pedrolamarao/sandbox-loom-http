@@ -120,7 +120,7 @@ public class HttpServer implements AutoCloseable
 
                 while (! Thread.currentThread().isInterrupted())
                 {
-                    HttpRequest.from(parser);
+                    parser.parseRequest();
                     socket.write( UTF_8.encode( "HTTP/1.1 200\r\nContent-Length: 0\r\n\r\n") );
                     logger.atInfo().log("client: {}: request responded", address);
                 }
