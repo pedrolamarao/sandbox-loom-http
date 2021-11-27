@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.loom.http.internal;
 
+import br.dev.pedrolamarao.loom.http.HttpCloseException;
 import br.dev.pedrolamarao.loom.http.HttpParserSource;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class ReadableByteChannelSource implements HttpParserSource
         {
             buffer.clear();
             final var read = channel.read(buffer);
-            if (read == -1) throw new RuntimeException("end-of-stream");
+            if (read == -1) throw new HttpCloseException();
             buffer.flip();
         }
         catch (IOException e)
