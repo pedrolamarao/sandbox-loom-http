@@ -106,11 +106,11 @@ public class HttpServer implements AutoCloseable
         }
 
         @Override
-        public Void call () throws Exception
+        public Void call ()
         {
             SocketAddress address = null;
 
-            try
+            try (socket)
             {
                 address = socket.getRemoteAddress();
 
@@ -134,10 +134,6 @@ public class HttpServer implements AutoCloseable
             catch (Exception e)
             {
                 logger.atError().log("client: {}: failed", address, e);
-            }
-            finally
-            {
-                socket.close();
             }
 
             return null;
