@@ -1,7 +1,6 @@
 package br.dev.pedrolamarao.loom.http;
 
 import java.io.ByteArrayOutputStream;
-import java.util.function.Supplier;
 import java.util.generator.GeneratorHandler;
 import java.util.generator.Generator;
 
@@ -13,7 +12,7 @@ public abstract class HttpParser
 {
     private final HttpParserSource source;
 
-    private final Supplier<HttpPart> generator = new Generator<>(this::run);
+    private final Generator<HttpPart> generator = new Generator<>(this::run);
 
     protected HttpParser (HttpParserSource source)
     {
@@ -22,7 +21,7 @@ public abstract class HttpParser
 
     public HttpPart parsePart ()
     {
-        return generator.get();
+        return generator.next();
     }
 
     //
