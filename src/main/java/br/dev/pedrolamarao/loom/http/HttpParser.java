@@ -56,7 +56,7 @@ public abstract class HttpParser
             {
                 handler.yield( new HttpBody(new byte[0]) );
             }
-            else if (contentLength < 0)
+            else // if (contentLength < 0)
             {
                 throw new HttpParserException("indefinite length body not supported");
             }
